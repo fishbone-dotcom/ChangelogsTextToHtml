@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Release Notes Converter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code&display=swap" rel="stylesheet">
+    <style id="preview-styles">
+        .rn-scope .prose-output {
+             font-family: "Inter", sans-serif;
+        }
+
+        .rn-scope .prose-output .year-section > h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1e3a8a; /* Darker blue */
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #93c5fd; /* Lighter blue border */
+        }
+
+        .rn-scope .prose-output .date-entry {
+            position: relative;
+            padding-left: 2.5rem; /* Space for timeline */
+            padding-bottom: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .rn-scope .prose-output .date-entry:before { /* Timeline line */
+            content: "";
+            position: absolute;
+            left: 0.5rem;
+            top: 0.5rem;
+            height: 100%;
+            width: 2px;
+            background-color: #dbeafe; /* Very light blue */
+        }
+        
+        .rn-scope .prose-output .year-section .date-entry:last-child:before {
+            display: none;
+        }
+
+        .rn-scope .prose-output .date-entry:after { /* Timeline dot */
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.35rem;
+            height: 1rem;
+            width: 1rem;
+            border-radius: 9999px;
+            background-color: #3b82f6; /* Blue dot */
+            border: 2px solid #ffffff;
+        }
+
+        .rn-scope .prose-output h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+        
+        .rn-scope .prose-output h4 {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            display: inline-block;
+            margin-top: 0.75rem;
+        }
+        
+        .rn-scope .prose-output .enhancements {
+            color: #166534; /* Dark Green */
+            background-color: #dcfce7; /* Light Green */
+        }
+
+        .rn-scope .prose-output .bugfixes {
+            color: #991b1b; /* Dark Red */
+            background-color: #fee2e2; /* Light Red */
+        }
+
+        .rn-scope .prose-output ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin-top: 0.75rem;
+            color: #4a5568;
+            width: max-content;
+            min-width: 100%;
+        }
+
+        .rn-scope .prose-output li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 1rem; /* Increased margin for better separation */
+            line-height: 1.6;
+        }
+        
+        .rn-scope .prose-output li:before {
+            content: "•";
+            color: #93c5fd;
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1.5rem;
+            position: absolute;
+            left: 0.5rem;
+        }
+
+        .rn-scope .prose-output strong {
+            color: #374151;
+            font-weight: 600;
+        }
+
+    </style>
+     <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #f0f4f8; /* Light blue-gray background */
+        }
+        #htmlOutput {
+            white-space: pre-wrap;
+            background-color: #1a202c;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            font-family: "Fira Code", "Courier New", monospace;
+            font-size: 0.875rem;
+            height: 30vh; /* Adjusted height */
+            overflow-y: auto;
+            border: 1px solid #4a5568;
+        }
+     </style>
+</head>
+<body class="p-4 sm:p-6 lg:p-8">
+    <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+        
+        <header class="mb-8 text-center border-b pb-6">
+             <div class="flex justify-center items-center gap-3">
+                 <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                 <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Plain Text to Html</h1>
+             </div>
+             <p class="text-lg text-gray-500 mt-2">Format plain text into a professional changelog style</p>
+        </header>
+
+        <div class="space-y-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="relative">
+                    <label for="plainText" class="block text-lg font-medium text-gray-700 mb-2">1. Paste Plain Text Here</label>
+                    <textarea id="plainText" class="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-shadow font-mono" style="height: 60vh; white-space: pre; overflow-x: auto;"></textarea>
+                    <button id="convertBtn" class="absolute top-12 right-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg transition-all transform hover:scale-105 text-sm">
+                        Convert to HTML
+                    </button>
+                </div>
+
+                <div>
+                     <h3 class="text-lg font-medium text-gray-700 mb-2">3. Live Preview</h3>
+                     <div id="preview" class="rn-scope prose-output p-6 border rounded-lg bg-white shadow-inner overflow-auto" style="height: 60vh;"></div>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                    <label for="htmlOutput" class="text-lg font-medium text-gray-700">2. HTML Code (with Styles)</label>
+                    <button id="copyBtn" class="bg-gray-200 text-gray-700 font-semibold py-1 px-3 rounded-lg hover:bg-gray-300 text-sm transition-colors flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        Copy Code
+                    </button>
+                </div>
+                <div id="htmlOutput">HTML code will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sampleText = `PAYROLL.PH
+----------------------
+    RELEASE NOTES
+----------------------
+
+September 15, 2025
+1. Reports -> Time Attendance -> Processed Attendance Detailed:
+	- Fixed missing parameter "Reg Hrs" and "RD/LH/SH Hrs" in the report.
+	- Changed the default value of "RD/LH/SH Hrs" from "10" to "1".
+`;
+
+        const plainTextInput = document.getElementById('plainText');
+        const htmlOutput = document.getElementById('htmlOutput');
+        const previewOutput = document.getElementById('preview');
+        const convertBtn = document.getElementById('convertBtn');
+        const copyBtn = document.getElementById('copyBtn');
+
+        plainTextInput.value = sampleText;
+
+        function isDate(s) {
+            if (s.length < 8) return false;
+            // Try parsing different formats, starting with more specific ones
+            let d = new Date(s);
+            if (d instanceof Date && !isNaN(d)) return true;
+             // Add more robust date parsing if needed for other formats
+            return false;
+        }
+
+        function convertToHtml(text) {
+            let lines = text.split('\n');
+            let title = lines[0] || 'Release Notes';
+            
+            let contentStartIndex = 1;
+            while(contentStartIndex < lines.length && (lines[contentStartIndex].includes('---') || lines[contentStartIndex].toUpperCase().includes('RELEASE NOTES'))) {
+                contentStartIndex++;
+            }
+
+            let processedLines = [];
+            let contentLines = lines.slice(contentStartIndex);
+            for (let i = 0; i < contentLines.length; i++) {
+                let line = contentLines[i];
+                if (line.match(/^\s{2,}|^\t/) && processedLines.length > 0) {
+                    let cleanedIndentedLine = line.trim().replace(/^-/, '').trim();
+                    processedLines[processedLines.length - 1] += `%%BR%%${cleanedIndentedLine}`;
+                } else {
+                    processedLines.push(line);
+                }
+            }
+            
+            let bodyHtml = '';
+            let currentYear = null;
+            let inList = false;
+
+            processedLines.forEach(line => {
+                const trimmedLine = line.trim();
+                if (!trimmedLine) return;
+
+                if (isDate(trimmedLine)) {
+                    if (inList) { bodyHtml += '</ul>\n'; inList = false; }
+                    if (bodyHtml.includes('<div class="date-entry')) { bodyHtml += '</div>\n'; }
+                    
+                    const dateObj = new Date(trimmedLine);
+                    const year = dateObj.getFullYear().toString();
+                    const formattedDate = dateObj.toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+                    if (year !== currentYear) {
+                        if (currentYear !== null) bodyHtml += `</div>\n`; 
+                        currentYear = year;
+                        bodyHtml += `<div class="year-section mt-6">\n<h2>${currentYear}</h2>\n`;
+                    }
+                    
+                    bodyHtml += `<div class="date-entry">\n<h3>${formattedDate}</h3>\n`;
+
+                } else if (trimmedLine.startsWith('*****') && trimmedLine.endsWith('*****')) {
+                    if (inList) { bodyHtml += '</ul>\n'; inList = false; }
+                    const category = trimmedLine.replace(/\*/g, '').trim();
+                    const categoryClass = category.toLowerCase().replace(/\s+/g, '');
+                    bodyHtml += `<h4 class="${categoryClass}">${category}</h4>\n`;
+
+                } else {
+                    if (!inList) {
+                        bodyHtml += '<ul>\n';
+                        inList = true;
+                    }
+                    let content = trimmedLine.replace(/^\s*-\s*|\s*\d+\.\s*/, '');
+                    const parts = content.split(':');
+                    if (parts.length > 1) {
+                        const firstPart = parts.shift();
+                        let subItems = parts.join(':')
+                            .trim()
+                            .split('%%BR%%')
+                            .filter(item => item.trim() !== '')
+                            .map(item => `- ${item.trim()}`)
+                            .join('<br>');
+                        content = `<strong>${firstPart.replace(/->/g, '&rarr;').trim()}:</strong><div style="margin-top: 0.25rem; padding-left: 1rem;">${subItems}</div>`;
+                    }
+                    bodyHtml += `<li>${content}</li>\n`;
+                }
+            });
+
+            if (inList) bodyHtml += '</ul>\n';
+            if (bodyHtml.includes('<div class="date-entry')) bodyHtml += `</div>\n`;
+            if (bodyHtml.includes('<div class="year-section')) bodyHtml += `</div>\n`;
+
+            return { bodyHtml: `<div class="release-notes-container">\n${bodyHtml}</div>`, title };
+        }
+
+        function updateOutput() {
+            const inputText = plainTextInput.value;
+            if (!inputText.trim()) {
+                htmlOutput.textContent = "Please paste text to convert.";
+                previewOutput.innerHTML = '';
+                return;
+            }
+            const { bodyHtml, title } = convertToHtml(inputText);
+            
+             const previewTitle = `
+                  <div class="text-center mb-8">
+                       <h1 class="text-3xl font-bold text-gray-800">${title}</h1>
+                       <p class="text-lg text-gray-500 mt-1">Release Notes</p>
+                  </div>
+             `;
+            previewOutput.innerHTML = `<div class="prose-output">${previewTitle}${bodyHtml}</div>`;
+
+            const styles = document.getElementById('preview-styles').innerHTML;
+            const fullHtmlForCopy = 
+                `<style>\n${styles}\n</style>\n` +
+                `<div class="rn-scope">\n` +
+                `  <div class="prose-output" style="background-color: #ffffff; padding: 2rem;">\n` +
+                `    ${previewTitle}` +
+                `    ${bodyHtml}` +
+                `  \n</div>`+
+                `\n</div>`;
+            
+            htmlOutput.textContent = fullHtmlForCopy;
+        }
+
+        convertBtn.addEventListener('click', updateOutput);
+        
+        copyBtn.addEventListener('click', () => {
+            const codeToCopy = htmlOutput.textContent;
+            if (codeToCopy && !codeToCopy.startsWith("HTML code")) {
+                 const tempTextArea = document.createElement('textarea');
+                 tempTextArea.value = codeToCopy;
+                 document.body.appendChild(tempTextArea);
+                 tempTextArea.select();
+                 try {
+                     document.execCommand('copy');
+                     copyBtn.innerHTML = `<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Copied!`;
+                 } catch (err) {
+                     console.error('Failed to copy text: ', err);
+                 }
+                 document.body.removeChild(tempTextArea);
+
+                 setTimeout(() => {
+                     copyBtn.innerHTML = `<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>Copy Code`;
+                 }, 2000);
+            }
+        });
+
+        // Initial load
+        updateOutput();
+    </script>
+</body>
+</html>
+
